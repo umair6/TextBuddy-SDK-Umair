@@ -14,8 +14,7 @@ namespace TextBuddy
 
         public static TextBuddy Instance { get; private set; }
 
-        [Header("SDK Configuration")]
-        [SerializeField] private TextBuddyConfig config;
+        private TextBuddyConfig config;
 
         [SerializeField] private string textBuddyDemoPhoneNumber;
         public string TextBuddyPhoneNumber => textBuddyDemoPhoneNumber;
@@ -44,6 +43,15 @@ namespace TextBuddy
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        private void Start()
+        {
+            config = TextBuddyRuntimeHelper.LoadConfig();
+            if (config == null)
+            {
+                TBLoger.Error("TextBuddyConfig Not Found", this);
+            }
         }
 
         private void OnDestroy()

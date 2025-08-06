@@ -11,12 +11,10 @@ public class IOSPostProcessor
     public static void OnPostProcessBuild(BuildTarget buildTarget, string pathToBuiltProject)
     {
         if (buildTarget != BuildTarget.iOS) return;
-
-        string configPath = "Assets/TextBuddy/Runtime/ScriptableObjects/TextBuddyConfig.asset";
-        var config = AssetDatabase.LoadAssetAtPath<TextBuddyConfig>(configPath);
+        var config = TextBuddy.Editor.TextBuddyEditorHelper.LoadConfigFromResources();
         if (config == null)
         {
-            UnityEngine.Debug.Log("[TextBuddy] Failed to load TextBuddyConfig from path: " + configPath);
+            UnityEngine.Debug.Log("[TextBuddy] Failed to load TextBuddyConfig from Resource Folder" );
             return;
         }
 

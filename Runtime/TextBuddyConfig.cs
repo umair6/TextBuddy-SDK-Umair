@@ -13,6 +13,6 @@ namespace TextBuddy
         public string TextBuddyAPIKey;
 
         [Header("Enable Debug Logs")]
-        public bool EnableLogs;
+        public bool EnableDebugLogs;
     }
 }
