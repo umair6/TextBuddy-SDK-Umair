@@ -4,6 +4,13 @@
   "displayName": "TextBuddy SDK",
   "description": "A Unity SDK to handle SMS-based user signups and deep links via custom URL schemes.",
   "unity": "2021.3",
+  "samples": [
+    {
+      "displayName": "Offer Sample",
+      "description": "TextBuddy offer wall sample",
+      "path": "Samples~/TextBuddyOffer"
+    }
+  ]
   "unityRelease": "0f1",
   "documentationUrl": "https://yourdomain.com/docs/textbuddy",
   "changelogUrl": "https://yourdomain.com/changelog",
