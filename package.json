@@ -1,0 +1,26 @@
+{
+  "name": "com.textbuddy.sdk",
+  "version": "1.0.0",
+  "displayName": "TextBuddy SDK",
+  "description": "A Unity SDK to handle SMS-based user signups and deep links via custom URL schemes.",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "documentationUrl": "https://yourdomain.com/docs/textbuddy",
+  "changelogUrl": "https://yourdomain.com/changelog",
+  "keywords": [
+    "textbuddy",
+    "sms",
+    "sdk",
+    "deeplink",
+    "mobile"
+  ],
+  "author": {
+    "name": "TextBuddy Team",
+    "email": "support@textbuddy.com",
+    "url": "https://textbuddy.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+      "com.unity.textmeshpro":"3.0.4"
+  }
+}
