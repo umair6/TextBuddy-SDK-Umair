@@ -1,7 +1,7 @@
 // Editor/TextBuddyMenu.cs
 using UnityEditor;
 using UnityEngine;
-
+using TextBuddy.core;
 namespace TextBuddy.Editor
 {
     public class TextBuddyMenu : EditorWindow

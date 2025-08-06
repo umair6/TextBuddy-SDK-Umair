@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TextBuddy
+namespace TextBuddy.core
 {
-    public class TextBuddy : MonoBehaviour
+    public class TextBuddySDK : MonoBehaviour
+
     {
         public enum InitializationStatus { NotInitialised, Initializing, Initialized }
         public enum SubscriptionStatus { UnSubscribed, Pending, Subscribed }
@@ -12,7 +13,7 @@ namespace TextBuddy
         private const string TextBuddyHostName = "textbuddy";
         private const string UserIDStorageKey = "TEXTBUDDY_USER_ID_KEY";
 
-        public static TextBuddy Instance { get; private set; }
+        public static TextBuddySDK Instance { get; private set; }
 
         private TextBuddyConfig config;
 

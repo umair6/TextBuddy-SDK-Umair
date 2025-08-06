@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
 
-namespace TextBuddy
+namespace TextBuddy.core
 {
     /// <summary>
     /// Provides methods to validate deep link query parameters using HMAC-SHA256.

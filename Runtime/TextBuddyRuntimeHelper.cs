@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace TextBuddy
+namespace TextBuddy.core
 {
     public static class TextBuddyRuntimeHelper
     {

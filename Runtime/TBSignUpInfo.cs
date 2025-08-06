@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TextBuddy
+namespace TextBuddy.core
 {
     /// <summary>
     /// Holds basic sign-up information passed via deep links or user action.

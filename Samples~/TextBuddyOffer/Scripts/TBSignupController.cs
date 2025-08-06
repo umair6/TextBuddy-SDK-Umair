@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TextBuddy;
 using TMPro;
+using TextBuddy.core;
 
 public class TBSignupController : MonoBehaviour
 {
@@ -13,10 +13,10 @@ public class TBSignupController : MonoBehaviour
 
     private void OnDestroy()
     {
-        TextBuddy.TextBuddy.OnSDKInitialized -= TextBuddy_OnSDKInitialized;
-        TextBuddy.TextBuddy.OnUserSubscribed -= TextBuddy_OnUserSubscribed;
-        TextBuddy.TextBuddy.OnUserSubscribeFail -= TextBuddy_OnUserSubscribeFail;
-        TextBuddy.TextBuddy.OnUserUnSubscribed -= TextBuddy_OnUserUnSubscribed;
+        TextBuddySDK.OnSDKInitialized -= TextBuddy_OnSDKInitialized;
+        TextBuddySDK.OnUserSubscribed -= TextBuddy_OnUserSubscribed;
+        TextBuddySDK.OnUserSubscribeFail -= TextBuddy_OnUserSubscribeFail;
+        TextBuddySDK.OnUserUnSubscribed -= TextBuddy_OnUserUnSubscribed;
 
     }
 
@@ -34,11 +34,11 @@ public class TBSignupController : MonoBehaviour
 
     private void Start()
     {
-        if (!TextBuddy.TextBuddy.Instance.IsInitialized())
+        if (!TextBuddySDK.Instance.IsInitialized())
         {
             _offerButton.interactable = false;
-            TextBuddy.TextBuddy.OnSDKInitialized += TextBuddy_OnSDKInitialized;
-            TextBuddy.TextBuddy.Instance.InitialiseTextBuddy();
+            TextBuddySDK.OnSDKInitialized += TextBuddy_OnSDKInitialized;
+            TextBuddySDK.Instance.InitialiseTextBuddy();
         }
         UpdateUserStatus();
     }
@@ -48,23 +48,23 @@ public class TBSignupController : MonoBehaviour
         _offerButton.interactable = true;
         UpdateUserStatus();
         UpdateUnsubscribeButton();
-        TextBuddy.TextBuddy.OnUserSubscribed += TextBuddy_OnUserSubscribed;
-        TextBuddy.TextBuddy.OnUserUnSubscribed += TextBuddy_OnUserUnSubscribed;
-        TextBuddy.TextBuddy.OnUserSubscribeFail += TextBuddy_OnUserSubscribeFail;
+        TextBuddySDK.OnUserSubscribed += TextBuddy_OnUserSubscribed;
+        TextBuddySDK.OnUserUnSubscribed += TextBuddy_OnUserUnSubscribed;
+        TextBuddySDK.OnUserSubscribeFail += TextBuddy_OnUserSubscribeFail;
     }
 
     private void UpdateUnsubscribeButton()
     {
-        _unsubscribeButton.gameObject.SetActive(TextBuddy.TextBuddy.Instance.IsUserSubscribed());
+        _unsubscribeButton.gameObject.SetActive(TextBuddySDK.Instance.IsUserSubscribed());
     }
 
     public void OnUnsubscribe()
     {
         Debug.Log("TBSignupController::OnUnsubscribe");
 
-        if (TextBuddy.TextBuddy.Instance.IsUserSubscribed())
+        if (TextBuddySDK.Instance.IsUserSubscribed())
         {
-            TextBuddy.TextBuddy.Instance.UnSubscribe();
+            TextBuddySDK.Instance.UnSubscribe();
         }
 
     }
@@ -73,7 +73,7 @@ public class TBSignupController : MonoBehaviour
     {
         Debug.Log("TBSignupController::OnShowOfferPressed");
 
-        if (!TextBuddy.TextBuddy.Instance.IsUserSubscribed())
+        if (!TextBuddySDK.Instance.IsUserSubscribed())
         {
             UIManager.Instance.TBOfferPopup.Setup(null, null,
                 () =>
@@ -92,7 +92,7 @@ public class TBSignupController : MonoBehaviour
     private void StartSignupProcess()
     {
         UIManager.Instance.LoadingView.Setup(null, null, null, null);
-        TextBuddy.TextBuddy.Instance.Subscribe();
+        TextBuddySDK.Instance.Subscribe();
     }
 
     private void TextBuddy_OnUserSubscribeFail(string errorMessage)
@@ -113,15 +113,15 @@ public class TBSignupController : MonoBehaviour
     private void UpdateUserStatus()
     {
         string statusString = "";
-        if (!TextBuddy.TextBuddy.Instance.IsInitialized())
+        if (!TextBuddySDK.Instance.IsInitialized())
         {
             statusString = "Initialising";
         }
-        else if (TextBuddy.TextBuddy.Instance.IsUserSignupInProgress())
+        else if (TextBuddySDK.Instance.IsUserSignupInProgress())
         {
             statusString = "Pending";
         }
-        else if (TextBuddy.TextBuddy.Instance.IsUserSubscribed())
+        else if (TextBuddySDK.Instance.IsUserSubscribed())
         {
             statusString = "Subscribed";
         }

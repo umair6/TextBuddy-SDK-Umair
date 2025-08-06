@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using TextBuddy;
+using TextBuddy.core;
 namespace TextBuddy.Editor
 {
     [InitializeOnLoad]
@@ -21,6 +21,7 @@ namespace TextBuddy.Editor
             {
                 if (!Directory.Exists(ConfigFolderPath))
                     Directory.CreateDirectory(ConfigFolderPath);
+
                 var config = ScriptableObject.CreateInstance<TextBuddyConfig>();
 
                 // Add placeholder defaults

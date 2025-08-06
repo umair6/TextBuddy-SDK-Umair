@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Networking;
 
-namespace TextBuddy
+namespace TextBuddy.core
 {
     /// <summary>
     /// Parses and provides access to deep link data from a given URL.

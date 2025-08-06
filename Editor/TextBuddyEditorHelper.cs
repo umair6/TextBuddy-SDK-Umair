@@ -2,6 +2,7 @@
 using UnityEditor;
 #endif
 
+using TextBuddy.core;
 namespace TextBuddy.Editor
 {
     public static class TextBuddyEditorHelper
