@@ -28,6 +28,7 @@
   },
   "license": "MIT",
   "dependencies": {
-      "com.unity.textmeshpro":"3.0.9"
+      "com.unity.textmeshpro":"3.0.9",
+      "com.unity.modules.unitywebrequest": "1.0.0"
   }
 }
