@@ -23,6 +23,7 @@ public class TBSignupController : MonoBehaviour
     private void TextBuddy_OnUserUnSubscribed()
     {
         UpdateUnsubscribeButton();
+        UpdateUserStatus();
     }
 
     private void Awake()
@@ -123,7 +124,7 @@ public class TBSignupController : MonoBehaviour
         }
         else if (TextBuddySDK.Instance.IsUserSubscribed())
         {
-            statusString = "Subscribed";
+            statusString = "Subscribed::" + (TextBuddySDK.Instance.TextBuddyUserID());
         }
         else
         {
