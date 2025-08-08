@@ -25,7 +25,7 @@ namespace TextBuddy.core
         {
             if (string.IsNullOrWhiteSpace(signatureKey))
             {
-                TBLoger.Error("[DeepLinkValidator] Signature key cannot be null or empty.");
+                TBLoger.Warning("[DeepLinkValidator] Signature key cannot be null or empty.");
                 return false;
             }
 
