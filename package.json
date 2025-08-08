@@ -1,6 +1,6 @@
 {
   "name": "com.textbuddy.sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "displayName": "TextBuddy SDK",
   "description": "A Unity SDK to handle SMS-based user signups and deep links via custom URL schemes.",
   "unity": "2021.3",
