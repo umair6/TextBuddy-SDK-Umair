@@ -4,6 +4,7 @@
   "displayName": "TextBuddy SDK",
   "description": "A Unity SDK to handle SMS-based user signups and deep links via custom URL schemes.",
   "unity": "2021.3",
+  "testable": true,
   "samples": [
     {
       "displayName": "Offer Sample",
@@ -30,6 +31,5 @@
   "dependencies": {
       "com.unity.textmeshpro":"3.0.9",
       "com.unity.modules.unitywebrequest": "1.0.0"
-  },
-  "testables": ["TextBuddy.Editor", "TextBuddy.Core"]
+  }
 }
