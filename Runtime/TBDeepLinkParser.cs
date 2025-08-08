@@ -32,6 +32,11 @@ namespace TextBuddy.core
         }
 
         /// <summary>
+        /// Returns the scheme name 
+        /// </summary>
+        public string Scheme => _isParsed ? _uri.Scheme : null;
+
+        /// <summary>
         /// Returns the host name (e.g., 'textbuddy') from the deep link URL.
         /// </summary>
         public string HostName => _isParsed ? _uri.Host : null;
@@ -52,13 +57,15 @@ namespace TextBuddy.core
 
             try
             {
-                return _uri.Query.TrimStart('?')
-                                 .Split('&', StringSplitOptions.RemoveEmptyEntries)
-                                 .Select(p => p.Split('=', 2))
-                                 .ToDictionary(
-                                     pair => pair[0],
-                                     pair => pair.Length > 1 ? UnityWebRequest.UnEscapeURL(pair[1]) : ""
-                                 );
+                return _uri.Query
+                           .TrimStart('?')
+                           .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                           .Select(p => p.Split('=', 2))
+                           .Where(pair => pair.Length == 2 && !string.IsNullOrWhiteSpace(pair[0]))
+                           .ToDictionary(
+                               pair => pair[0],
+                               pair => UnityWebRequest.UnEscapeURL(pair[1])
+                           );
             }
             catch (Exception ex)
             {

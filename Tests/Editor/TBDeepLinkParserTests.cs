@@ -12,9 +12,10 @@ namespace TextBuddy.Tests
         [Test]
         public void Constructor_ValidUrl_ShouldParseSuccessfully()
         {
-            string url = "textbuddy://confirm?status=success&id=abc123";
+            string url = "textbuddy-123://textbuddy/confirm?status=success&id=abc123";
             var parser = new TBDeepLinkParser(url);
 
+            Assert.AreEqual("textbuddy-123", parser.Scheme);
             Assert.AreEqual("textbuddy", parser.HostName);
             Assert.AreEqual("/confirm", parser.Path);
         }
