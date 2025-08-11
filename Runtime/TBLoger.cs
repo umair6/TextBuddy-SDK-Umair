@@ -5,7 +5,7 @@ namespace TextBuddy.core
     /// <summary>
     /// Simple logger for TextBuddy SDK with log level control. Logs only in debug or development builds.
     /// </summary>
-    public static class TBLoger
+    public static class TBLogger
     {
         public static bool EnableInfo = true;
         public static bool EnableWarning = true;

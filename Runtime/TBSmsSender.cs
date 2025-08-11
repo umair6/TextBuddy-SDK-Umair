@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace TextBuddy.core
@@ -17,7 +17,7 @@ namespace TextBuddy.core
         {
             if (string.IsNullOrWhiteSpace(phoneNumber) || string.IsNullOrWhiteSpace(message))
             {
-                TBLoger.Warning("[BasicSMSSender] Phone number or message is empty.");
+                TBLogger.Warning("[BasicSMSSender] Phone number or message is empty.");
                 return;
             }
 
@@ -28,11 +28,11 @@ namespace TextBuddy.core
 #elif UNITY_IOS
             url = $"sms:{phoneNumber}&body={Uri.EscapeDataString(message)}";
 #else
-            TBLoger.Warning("[BasicSMSSender] SMS sending not supported on this platform.");
+            TBLogger.Warning("[BasicSMSSender] SMS sending not supported on this platform.");
             return;
 #endif
 
-            TBLoger.Info($"[BasicSMSSender] Opening SMS URL: {url}");
+            TBLogger.Info($"[BasicSMSSender] Opening SMS URL: {url}");
             Application.OpenURL(url);
         }
     }

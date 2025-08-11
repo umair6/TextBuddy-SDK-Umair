@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ namespace TextBuddy.core
     public class TextBuddySDK : MonoBehaviour
 
     {
-        public enum InitializationStatus { NotInitialised, Initializing, Initialized }
+        public enum InitializationStatus { NotInitialized, Initializing, Initialized }
         public enum SubscriptionStatus { UnSubscribed, Pending, Subscribed }
 
         private const string TextBuddyHostName = "textbuddy";
@@ -20,7 +20,7 @@ namespace TextBuddy.core
         [SerializeField] private string textBuddyDemoPhoneNumber;
         public string TextBuddyPhoneNumber => textBuddyDemoPhoneNumber;
 
-        private InitializationStatus sdkInitializationStatus = InitializationStatus.NotInitialised;
+        private InitializationStatus sdkInitializationStatus = InitializationStatus.NotInitialized;
         private SubscriptionStatus subscriptionStatus = SubscriptionStatus.UnSubscribed;
         private string textBuddyUserID = "";
 
@@ -31,8 +31,8 @@ namespace TextBuddy.core
 
         public static event Action OnSDKInitialized;
         public static event Action OnUserSubscribed;
-        public static event Action OnUserUnSubscribed;
         public static event Action<string> OnUserSubscribeFail;
+        private static event Action OnUserUnsubscribed;
 
         private void Awake()
         {
@@ -51,7 +51,7 @@ namespace TextBuddy.core
             config = TextBuddyRuntimeHelper.LoadConfig();
             if (config == null)
             {
-                TBLoger.Error("TextBuddyConfig Not Found", this);
+                TBLogger.Error("TextBuddyConfig Not Found", this);
             }
         }
 
@@ -64,13 +64,13 @@ namespace TextBuddy.core
             }
         }
 
-        public void InitialiseTextBuddy()
+        public void Initialize()
         {
-            if (sdkInitializationStatus != InitializationStatus.NotInitialised)
+            if (sdkInitializationStatus != InitializationStatus.NotInitialized)
                 return;
 
             sdkInitializationStatus = InitializationStatus.Initializing;
-            TBLoger.Info("Initializing...", this);
+            TBLogger.Info("Initializing...", this);
 
             // Simulate async initialization
             Invoke(nameof(FinishInitialization), 2f);
@@ -87,7 +87,7 @@ namespace TextBuddy.core
 
             SetupDeeplinkListener();
 
-            TBLoger.Info("Initialized", this);
+            TBLogger.Info("Initialized", this);
             OnSDKInitialized?.Invoke();
         }
 
@@ -99,7 +99,7 @@ namespace TextBuddy.core
 
         private void OnDeepLinkActivated(string url)
         {
-            TBLoger.Info("OnDeepLinkActivated", this);
+            TBLogger.Info("OnDeepLinkActivated", this);
             if (!string.IsNullOrEmpty(url))
             {
                 HandleDeepLink(url);
@@ -116,7 +116,7 @@ namespace TextBuddy.core
 
         private void HandleDeepLink(string url)
         {
-            TBLoger.Info("HandleDeepLink: " + url, this);
+            TBLogger.Info("HandleDeepLink: " + url, this);
 
             if (subscriptionStatus != SubscriptionStatus.Pending)
                 return;
@@ -190,18 +190,18 @@ namespace TextBuddy.core
                 GameID = config.TextBuddyGameID
             };
 
-            TBLoger.Info("Subscribe", this);
+            TBLogger.Info("Subscribe", this);
             SubscribeInternal(info.ToString(), TextBuddyPhoneNumber);
         }
 
         private void SubscribeInternal(string message, string number)
         {
-            TBLoger.Info("SubscribeInternal: " + message, this);
+            TBLogger.Info("SubscribeInternal: " + message, this);
             subscriptionStatus = SubscriptionStatus.Pending;
             TBSMSSender.SendSms(number, message);
         }
 
-        public void UnSubscribe()
+        private void Unsubscribe()
         {
             if (subscriptionStatus != SubscriptionStatus.Subscribed)
                 return;
@@ -212,17 +212,17 @@ namespace TextBuddy.core
                 GameID = config.TextBuddyGameID
             };
 
-            TBLoger.Info("UnSubscribe", this);
+            TBLogger.Info("UnSubscribe", this);
             UnSubscribeInternal(info.ToString(), TextBuddyPhoneNumber);
         }
 
         private void UnSubscribeInternal(string message, string number)
         {
-            TBLoger.Info("UnSubscribeInternal: " + message, this);
+            TBLogger.Info("UnSubscribeInternal: " + message, this);
             TBSMSSender.SendSms(number, message);
             subscriptionStatus = SubscriptionStatus.UnSubscribed;
             SetTextBuddyUserID("");
-            OnUserUnSubscribed?.Invoke();
+            OnUserUnsubscribed?.Invoke();
         }
     }
 }

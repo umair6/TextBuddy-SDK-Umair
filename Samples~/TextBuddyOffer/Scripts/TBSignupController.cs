@@ -7,7 +7,6 @@ public class TBSignupController : MonoBehaviour
 {
 
     [SerializeField] private Button _offerButton;
-    [SerializeField] private Button _unsubscribeButton;
     [SerializeField] private TextMeshProUGUI _statusText;
 
 
@@ -16,20 +15,12 @@ public class TBSignupController : MonoBehaviour
         TextBuddySDK.OnSDKInitialized -= TextBuddy_OnSDKInitialized;
         TextBuddySDK.OnUserSubscribed -= TextBuddy_OnUserSubscribed;
         TextBuddySDK.OnUserSubscribeFail -= TextBuddy_OnUserSubscribeFail;
-        TextBuddySDK.OnUserUnSubscribed -= TextBuddy_OnUserUnSubscribed;
 
-    }
-
-    private void TextBuddy_OnUserUnSubscribed()
-    {
-        UpdateUnsubscribeButton();
     }
 
     private void Awake()
     {
         _offerButton.onClick.AddListener(OnShowOfferPressed);
-        _unsubscribeButton.onClick.AddListener(OnUnsubscribe);
-        _unsubscribeButton.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -38,7 +29,7 @@ public class TBSignupController : MonoBehaviour
         {
             _offerButton.interactable = false;
             TextBuddySDK.OnSDKInitialized += TextBuddy_OnSDKInitialized;
-            TextBuddySDK.Instance.InitialiseTextBuddy();
+            TextBuddySDK.Instance.Initialize();
         }
         UpdateUserStatus();
     }
@@ -47,27 +38,10 @@ public class TBSignupController : MonoBehaviour
     {
         _offerButton.interactable = true;
         UpdateUserStatus();
-        UpdateUnsubscribeButton();
         TextBuddySDK.OnUserSubscribed += TextBuddy_OnUserSubscribed;
-        TextBuddySDK.OnUserUnSubscribed += TextBuddy_OnUserUnSubscribed;
         TextBuddySDK.OnUserSubscribeFail += TextBuddy_OnUserSubscribeFail;
     }
 
-    private void UpdateUnsubscribeButton()
-    {
-        _unsubscribeButton.gameObject.SetActive(TextBuddySDK.Instance.IsUserSubscribed());
-    }
-
-    public void OnUnsubscribe()
-    {
-        Debug.Log("TBSignupController::OnUnsubscribe");
-
-        if (TextBuddySDK.Instance.IsUserSubscribed())
-        {
-            TextBuddySDK.Instance.UnSubscribe();
-        }
-
-    }
 
     public void OnShowOfferPressed()
     {
@@ -107,7 +81,6 @@ public class TBSignupController : MonoBehaviour
         UIManager.Instance.LoadingView.Close();
         UIManager.Instance.TBOfferAcceptPopup.Setup(null, null, null, null);
         UpdateUserStatus();
-        UpdateUnsubscribeButton();
     }
 
     private void UpdateUserStatus()
@@ -123,7 +96,7 @@ public class TBSignupController : MonoBehaviour
         }
         else if (TextBuddySDK.Instance.IsUserSubscribed())
         {
-            statusString = "Subscribed";
+            statusString = "Subscribed::" + (TextBuddySDK.Instance.TextBuddyUserID());
         }
         else
         {

@@ -26,7 +26,7 @@ namespace TextBuddy.core
             }
             else
             {
-                TBLoger.Warning($"[DeepLinkParser] Invalid URL provided: {url}");
+                TBLogger.Warning($"[DeepLinkParser] Invalid URL provided: {url}");
                 _isParsed = false;
             }
         }
@@ -69,7 +69,7 @@ namespace TextBuddy.core
             }
             catch (Exception ex)
             {
-                TBLoger.Warning($"[DeepLinkParser] Failed to parse query: {ex.Message}");
+                TBLogger.Warning($"[DeepLinkParser] Failed to parse query: {ex.Message}");
                 return null;
             }
         }

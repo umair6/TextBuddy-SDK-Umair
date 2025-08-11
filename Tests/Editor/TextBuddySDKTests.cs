@@ -43,9 +43,9 @@ namespace TextBuddy.Tests
         }
 
         [Test]
-        public void InitialiseTextBuddy_SetsInitializingStatus()
+        public void InitializeTextBuddy_SetsInitializingStatus()
         {
-            sdk.InitialiseTextBuddy();
+            sdk.Initialize();
             // Reflection check because sdkInitializationStatus is private
             var status = typeof(TextBuddySDK)
                 .GetField("sdkInitializationStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
@@ -66,28 +66,6 @@ namespace TextBuddy.Tests
             Assert.AreEqual(TextBuddySDK.SubscriptionStatus.Pending, status);
         }
 
-        [Test]
-        public void UnSubscribe_ChangesStatusToUnsubscribed_AndClearsUserId()
-        {
-            // Pretend user was subscribed
-            typeof(TextBuddySDK)
-                .GetField("subscriptionStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(sdk, TextBuddySDK.SubscriptionStatus.Subscribed);
-
-            typeof(TextBuddySDK)
-                .GetField("textBuddyUserID", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(sdk, "user123");
-
-            sdk.UnSubscribe();
-
-            var status = typeof(TextBuddySDK)
-                .GetField("subscriptionStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .GetValue(sdk);
-
-            Assert.AreEqual(TextBuddySDK.SubscriptionStatus.UnSubscribed, status);
-
-            Assert.AreEqual("", sdk.TextBuddyUserID());
-        }
 
         [Test]
         public void IsTextBuddyURL_ValidHost_ReturnsTrue()

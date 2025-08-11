@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -25,13 +25,13 @@ namespace TextBuddy.core
         {
             if (string.IsNullOrWhiteSpace(signatureKey))
             {
-                TBLoger.Warning("[DeepLinkValidator] Signature key cannot be null or empty.");
+                TBLogger.Warning("[DeepLinkValidator] Signature key cannot be null or empty.");
                 return false;
             }
 
             if (parameters == null || !parameters.TryGetValue(signatureKey, out string receivedSignature))
             {
-                TBLoger.Warning($"[DeepLinkValidator] Missing '{signatureKey}' parameter in query.");
+                TBLogger.Warning($"[DeepLinkValidator] Missing '{signatureKey}' parameter in query.");
                 return false;
             }
 
@@ -67,14 +67,14 @@ namespace TextBuddy.core
                 // Step 3: Compare signatures
                 bool isValid = string.Equals(receivedSignature, calculatedSignature, StringComparison.OrdinalIgnoreCase);
 
-                TBLoger.Info($"[DeepLinkValidator] {signatureKey} received:   {receivedSignature}");
-                TBLoger.Info($"[DeepLinkValidator] {signatureKey} calculated: {calculatedSignature}");
+                TBLogger.Info($"[DeepLinkValidator] {signatureKey} received:   {receivedSignature}");
+                TBLogger.Info($"[DeepLinkValidator] {signatureKey} calculated: {calculatedSignature}");
 
                 return isValid;
             }
             catch (Exception ex)
             {
-                TBLoger.Error($"[DeepLinkValidator] Exception during validation: {ex.Message}");
+                TBLogger.Error($"[DeepLinkValidator] Exception during validation: {ex.Message}");
                 return false;
             }
         }
