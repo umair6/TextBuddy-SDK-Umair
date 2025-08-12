@@ -2,7 +2,7 @@
     "name": "TextBuddy.Editor",
     "rootNamespace": "",
     "references": [
-        "Textbuddy.core"
+        "TextBuddy.Core"
     ],
     "includePlatforms": [
         "Editor"

@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 using System.IO;
-using TextBuddy.core;
+using TextBuddy.Core;
 
 namespace TextBuddy.Editor
 {

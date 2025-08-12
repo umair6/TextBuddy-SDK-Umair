@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
     public static class TBDataStorage
     {

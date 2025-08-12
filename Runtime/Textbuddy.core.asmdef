@@ -1,5 +1,5 @@
 {
-    "name": "Textbuddy.core",
+    "name": "TextBuddy.Core",
     "rootNamespace": "",
     "references": [
         "Unity.TextMeshPro"

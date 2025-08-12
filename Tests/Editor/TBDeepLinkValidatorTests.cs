@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
-using TextBuddy.core;
+using TextBuddy.Core;
 using System;
 
 namespace TextBuddy.Tests

@@ -3,7 +3,7 @@
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
-        "Textbuddy.core"
+        "TextBuddy.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

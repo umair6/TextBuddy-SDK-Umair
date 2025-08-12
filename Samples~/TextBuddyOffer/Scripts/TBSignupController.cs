@@ -1,60 +1,61 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using TextBuddy.core;
+using TextBuddy.Core;
 
 public class TBSignupController : MonoBehaviour
 {
-
+    [SerializeField] private Button _initButton;
     [SerializeField] private Button _offerButton;
-    [SerializeField] private TextMeshProUGUI _statusText;
-
+    [SerializeField] private TextMeshProUGUI _sdkStatusText;
+    [SerializeField] private TextMeshProUGUI _subscriptionStatusText;
 
     private void OnDestroy()
     {
-        TextBuddySDK.OnSDKInitialized -= TextBuddy_OnSDKInitialized;
-        TextBuddySDK.OnUserSubscribed -= TextBuddy_OnUserSubscribed;
-        TextBuddySDK.OnUserSubscribeFail -= TextBuddy_OnUserSubscribeFail;
-
+        TextBuddySDK.OnSDKInitialized -= TextBuddySDK_OnSDKInitialized;
+        UnregisterSubscriptionCalls();
     }
 
     private void Awake()
     {
+        _initButton.onClick.AddListener(InitializeTextBuddySDK);
         _offerButton.onClick.AddListener(OnShowOfferPressed);
     }
 
     private void Start()
     {
-        if (!TextBuddySDK.Instance.IsInitialized())
-        {
-            _offerButton.interactable = false;
-            TextBuddySDK.OnSDKInitialized += TextBuddy_OnSDKInitialized;
-            TextBuddySDK.Instance.Initialize();
-        }
-        UpdateUserStatus();
+        _initButton.interactable = true;
+        _offerButton.gameObject.SetActive(false);
+        UpdateSDKStatus();
+        UpdateSubscriptionStatus();
     }
 
-    private void TextBuddy_OnSDKInitialized()
+    public void InitializeTextBuddySDK()
     {
-        _offerButton.interactable = true;
-        UpdateUserStatus();
-        TextBuddySDK.OnUserSubscribed += TextBuddy_OnUserSubscribed;
-        TextBuddySDK.OnUserSubscribeFail += TextBuddy_OnUserSubscribeFail;
+        _initButton.interactable = false;
+        TextBuddySDK.OnSDKInitialized += TextBuddySDK_OnSDKInitialized;
+        TextBuddySDK.Instance.Initialize();
     }
 
+    private void TextBuddySDK_OnSDKInitialized(object sender, SDKInitializedEventArgs e)
+    {
+        _initButton.interactable = !e.Status;
+        _offerButton.gameObject.SetActive(e.Status);
+        UpdateSDKStatus();
+        UpdateSubscriptionStatus();
+    }
 
     public void OnShowOfferPressed()
     {
         Debug.Log("TBSignupController::OnShowOfferPressed");
 
-        if (!TextBuddySDK.Instance.IsUserSubscribed())
+        if (TextBuddySDK.Instance.SubscriptionState != TextBuddySDK.Subscription.Active)
         {
             UIManager.Instance.TBOfferPopup.Setup(null, null,
                 () =>
                 {
                     //YES
                     StartSignupProcess();
-                    UpdateUserStatus();
                 }, null);
         }
         else
@@ -66,49 +67,69 @@ public class TBSignupController : MonoBehaviour
     private void StartSignupProcess()
     {
         UIManager.Instance.LoadingView.Setup(null, null, null, null);
+        RegisterSubscriptionCalls();
         TextBuddySDK.Instance.Subscribe();
+        UpdateSubscriptionStatus();
     }
 
-    private void TextBuddy_OnUserSubscribeFail(string errorMessage)
+    private void RegisterSubscriptionCalls()
     {
+        TextBuddySDK.OnUserSubscribed += TextBuddySDK_OnUserSubscribed;
+        TextBuddySDK.OnUserSubscribeFail += TextBuddySDK_OnUserSubscribeFail;
+    }
+
+    private void UnregisterSubscriptionCalls()
+    {
+        TextBuddySDK.OnUserSubscribed -= TextBuddySDK_OnUserSubscribed;
+        TextBuddySDK.OnUserSubscribeFail -= TextBuddySDK_OnUserSubscribeFail;
+    }
+
+
+    private void TextBuddySDK_OnUserSubscribeFail(object sender, UserSubscribeFailedEventArgs e)
+    {
+        UnregisterSubscriptionCalls();
         UIManager.Instance.LoadingView.Close();
-        UIManager.Instance.RegisterationFailedPopup.Setup(null, errorMessage, null, null);
-        UpdateUserStatus();
+        UIManager.Instance.RegisterationFailedPopup.Setup(null, e.ErrorMessage, null, null);
+        UpdateSubscriptionStatus();
     }
 
-    private void TextBuddy_OnUserSubscribed()
+    private void TextBuddySDK_OnUserSubscribed(object sender, UserSubscribedEventArgs e)
     {
+        UnregisterSubscriptionCalls();
         UIManager.Instance.LoadingView.Close();
         UIManager.Instance.TBOfferAcceptPopup.Setup(null, null, null, null);
-        UpdateUserStatus();
+        UpdateSubscriptionStatus();
     }
 
-    private void UpdateUserStatus()
-    {
-        string statusString = "";
-        if (!TextBuddySDK.Instance.IsInitialized())
-        {
-            statusString = "Initialising";
-        }
-        else if (TextBuddySDK.Instance.IsUserSignupInProgress())
-        {
-            statusString = "Pending";
-        }
-        else if (TextBuddySDK.Instance.IsUserSubscribed())
-        {
-            statusString = "Subscribed::" + (TextBuddySDK.Instance.TextBuddyUserID());
-        }
-        else
-        {
-            statusString = "UnSubscribed";
-        }
 
-        SetStatusMessage("Status: " + statusString);
+
+    private void UpdateSDKStatus()
+    {
+        string sdkStatus = "SDK: Not Initialized";
+        if (TextBuddySDK.Instance.InitializationState == TextBuddySDK.Initialization.InProgress)
+        {
+            sdkStatus = "SDK: Initializing";
+        }
+        else if (TextBuddySDK.Instance.InitializationState == TextBuddySDK.Initialization.Complete)
+        {
+            sdkStatus = "SDK: Initialized";
+        }
+        _sdkStatusText.text = sdkStatus;
     }
 
-    private void SetStatusMessage(string statusMessage)
+
+    private void UpdateSubscriptionStatus()
     {
-        _statusText.text = statusMessage;
+        string subscriptionStatus = "Subscription: None";
+        if (TextBuddySDK.Instance.SubscriptionState == TextBuddySDK.Subscription.Pending)
+        {
+            subscriptionStatus = "Subscription: Pending";
+        }
+        else if (TextBuddySDK.Instance.SubscriptionState == TextBuddySDK.Subscription.Active)
+        {
+            subscriptionStatus = "Active";
+        }
+        _subscriptionStatusText.text = subscriptionStatus;
     }
 
 

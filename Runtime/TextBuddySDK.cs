@@ -1,38 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Newtonsoft.Json;
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
+
     public class TextBuddySDK : MonoBehaviour
 
     {
-        public enum InitializationStatus { NotInitialized, Initializing, Initialized }
-        public enum SubscriptionStatus { UnSubscribed, Pending, Subscribed }
 
-        private const string TextBuddyHostName = "textbuddy";
-        private const string UserIDStorageKey = "TEXTBUDDY_USER_ID_KEY";
-
-        public static TextBuddySDK Instance { get; private set; }
+        public enum Initialization { NotStarted, InProgress, Complete }
+        public enum Subscription { None, Pending, Active }
 
         private TextBuddyConfig config;
 
-        [SerializeField] private string textBuddyDemoPhoneNumber;
-        public string TextBuddyPhoneNumber => textBuddyDemoPhoneNumber;
+        public static TextBuddySDK Instance { get; private set; }
+        public string TextBuddyPhoneNumber { get; private set; }
+        public Initialization InitializationState { get; private set; }
+        public Subscription SubscriptionState { get; private set; }
+        public string TextBuddyUserID { get; private set; }
 
-        private InitializationStatus sdkInitializationStatus = InitializationStatus.NotInitialized;
-        private SubscriptionStatus subscriptionStatus = SubscriptionStatus.UnSubscribed;
-        private string textBuddyUserID = "";
+        public static event EventHandler<SDKInitializedEventArgs> OnSDKInitialized;
+        public static event EventHandler<UserSubscribedEventArgs> OnUserSubscribed;
+        public static event EventHandler<UserSubscribeFailedEventArgs> OnUserSubscribeFail;
+        private static event EventHandler<UserUnsubscribedEventArgs> OnUserUnsubscribed;
 
-        public bool IsInitialized() => sdkInitializationStatus == InitializationStatus.Initialized;
-        public bool IsUserSubscribed() => subscriptionStatus == SubscriptionStatus.Subscribed;
-        public bool IsUserSignupInProgress() => subscriptionStatus == SubscriptionStatus.Pending;
-        public string TextBuddyUserID() => textBuddyUserID;
-
-        public static event Action OnSDKInitialized;
-        public static event Action OnUserSubscribed;
-        public static event Action<string> OnUserSubscribeFail;
-        private static event Action OnUserUnsubscribed;
 
         private void Awake()
         {
@@ -48,10 +41,18 @@ namespace TextBuddy.core
 
         private void Start()
         {
+            InitializationState = Initialization.NotStarted;
+            SubscriptionState = Subscription.None;
             config = TextBuddyRuntimeHelper.LoadConfig();
             if (config == null)
             {
                 TBLogger.Error("TextBuddyConfig Not Found", this);
+            }
+            else
+            {
+                TBLogger.EnableInfo = config.EnableDebugLogs;
+                TBLogger.EnableWarning = config.EnableDebugLogs;
+                TBLogger.EnableError = config.EnableDebugLogs;
             }
         }
 
@@ -66,29 +67,82 @@ namespace TextBuddy.core
 
         public void Initialize()
         {
-            if (sdkInitializationStatus != InitializationStatus.NotInitialized)
+            if (InitializationState != Initialization.NotStarted)
+            {
                 return;
-
-            sdkInitializationStatus = InitializationStatus.Initializing;
+            }
+            InitializationState = Initialization.InProgress;
+            TextBuddyUserID = TextBuddyRuntimeHelper.GetStoredUserID();
             TBLogger.Info("Initializing...", this);
-
-            // Simulate async initialization
-            Invoke(nameof(FinishInitialization), 2f);
+            SendConnectRequest();
         }
 
-        private void FinishInitialization()
+
+        private async void SendConnectRequest()
         {
-            textBuddyUserID = TBDataStorage.GetString(UserIDStorageKey, "");
+            string baseUrl = "http://localhost:3000/";
+            string endpoint = "/connect";
+            string apiKey = config.TextBuddyAPIKey;
 
-            if (!string.IsNullOrEmpty(textBuddyUserID))
-                subscriptionStatus = SubscriptionStatus.Subscribed;
+            Dictionary<string, string> connectParams = new Dictionary<string, string>();
+            connectParams["gameID"] = config.TextBuddyGameID;
+            connectParams["userID"] = TextBuddyUserID;
+            string payload = JsonConvert.SerializeObject(connectParams);
 
-            sdkInitializationStatus = InitializationStatus.Initialized;
+            TBWebResponse res = await TBWebClient.PostAsync(baseUrl, endpoint, apiKey, payload);
+            if (res.Success)
+            {
+                bool status = true;
+                string errorMessage = "";
+                Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(res.ResponseText);
+                bool isResponseValidated =  TBDeepLinkValidator.ValidateQueryParams(dict, config.TextBuddyAPIKey);
+                if (isResponseValidated)
+                {
 
-            SetupDeeplinkListener();
+                    TextBuddyPhoneNumber = dict["phoneNumber"];
+                    string userIDStatus = dict["userIDStatus"];
+                    bool isSubscribed = userIDStatus.Equals("subscribed");
+                    if (!isSubscribed)
+                    {
+                        SetTextBuddyUserID("");
+                    }
+                }
+                else
+                {
+                    status = false;
+                    errorMessage = "Reponse validation failed";
+                }
+                FinishInitialization(status, errorMessage);
+            }
+            else
+            {
+                TBLogger.Info(res.ResponseText);
+                bool status = false;
+                string errorMessage = "Connect call failed";
+                FinishInitialization(status, errorMessage);
+            }
 
-            TBLogger.Info("Initialized", this);
-            OnSDKInitialized?.Invoke();
+        }
+
+        private void FinishInitialization(bool success, string errorMessage)
+        {
+            if (success)
+            {
+                if (!string.IsNullOrEmpty(TextBuddyUserID))
+                    SubscriptionState = Subscription.Active;
+
+                InitializationState = Initialization.Complete;
+
+                SetupDeeplinkListener();
+                TBLogger.Info("Initialized", this);
+            }
+            else
+            {
+                SubscriptionState = Subscription.None;
+                InitializationState = Initialization.NotStarted;
+
+            }
+            OnSDKInitialized?.Invoke(this, new SDKInitializedEventArgs(success, errorMessage));
         }
 
         private void SetupDeeplinkListener()
@@ -118,12 +172,12 @@ namespace TextBuddy.core
         {
             TBLogger.Info("HandleDeepLink: " + url, this);
 
-            if (subscriptionStatus != SubscriptionStatus.Pending)
+            if (SubscriptionState != Subscription.Pending)
                 return;
 
             var parser = new TBDeepLinkParser(url);
 
-            if (!IsTextBuddyURL(parser.HostName))
+            if (!TextBuddyRuntimeHelper.IsTextBuddyHostName(parser.HostName))
                 return;
 
             Dictionary<string, string> queryParams = parser.ParseQuery();
@@ -132,46 +186,47 @@ namespace TextBuddy.core
 
             if (!queryParams.TryGetValue("status", out string status) || string.IsNullOrWhiteSpace(status))
             {
-                subscriptionStatus = SubscriptionStatus.UnSubscribed;
-                OnUserSubscribeFail?.Invoke("Missing or invalid status");
+                SubscriptionState = Subscription.None;
+                int errorCode = 1;
+                OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Missing or invalid status"));
                 return;
             }
 
             if (!status.Equals("success", StringComparison.OrdinalIgnoreCase))
             {
-                subscriptionStatus = SubscriptionStatus.UnSubscribed;
-                OnUserSubscribeFail?.Invoke("Signup failed");
+                SubscriptionState = Subscription.None;
+                int errorCode = 2;
+                OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Signup failed"));
+
                 return;
             }
 
             if (!ValidateResponse(queryParams))
             {
-                subscriptionStatus = SubscriptionStatus.UnSubscribed;
-                OnUserSubscribeFail?.Invoke("Signature validation failed");
+                SubscriptionState = Subscription.None;
+                int errorCode = 3;
+                OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Signature validation failed"));
+
                 return;
             }
 
             if (!queryParams.TryGetValue("id", out string id) || string.IsNullOrWhiteSpace(id))
             {
-                subscriptionStatus = SubscriptionStatus.UnSubscribed;
-                OnUserSubscribeFail?.Invoke("Missing or invalid ID");
+                SubscriptionState = Subscription.None;
+                int errorCode = 4;
+                OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Missing or invalid ID"));
                 return;
             }
 
             SetTextBuddyUserID(id);
-            subscriptionStatus = SubscriptionStatus.Subscribed;
-            OnUserSubscribed?.Invoke();
-        }
-
-        private bool IsTextBuddyURL(string hostName)
-        {
-            return string.Equals(hostName, TextBuddyHostName, StringComparison.OrdinalIgnoreCase);
+            SubscriptionState = Subscription.Active;
+            OnUserSubscribed?.Invoke(this, new UserSubscribedEventArgs(id));
         }
 
         private void SetTextBuddyUserID(string playerID)
         {
-            textBuddyUserID = playerID;
-            TBDataStorage.SetString(UserIDStorageKey, textBuddyUserID);
+            TextBuddyUserID = playerID;
+            TextBuddyRuntimeHelper.StoreTextBuddyUserID(TextBuddyUserID);
         }
 
         private bool ValidateResponse(Dictionary<string, string> parameters)
@@ -181,7 +236,7 @@ namespace TextBuddy.core
 
         public void Subscribe()
         {
-            if (subscriptionStatus != SubscriptionStatus.UnSubscribed)
+            if (SubscriptionState != Subscription.None)
                 return;
 
             var info = new TBSignUpInfo
@@ -197,13 +252,14 @@ namespace TextBuddy.core
         private void SubscribeInternal(string message, string number)
         {
             TBLogger.Info("SubscribeInternal: " + message, this);
-            subscriptionStatus = SubscriptionStatus.Pending;
+            SubscriptionState = Subscription.Pending;
+
             TBSMSSender.SendSms(number, message);
         }
 
         private void Unsubscribe()
         {
-            if (subscriptionStatus != SubscriptionStatus.Subscribed)
+            if (SubscriptionState != Subscription.Active)
                 return;
 
             var info = new TBSignUpInfo
@@ -219,10 +275,11 @@ namespace TextBuddy.core
         private void UnSubscribeInternal(string message, string number)
         {
             TBLogger.Info("UnSubscribeInternal: " + message, this);
+            string userID = TextBuddyUserID;
             TBSMSSender.SendSms(number, message);
-            subscriptionStatus = SubscriptionStatus.UnSubscribed;
+            SubscriptionState = Subscription.None;
             SetTextBuddyUserID("");
-            OnUserUnsubscribed?.Invoke();
+            OnUserUnsubscribed?.Invoke(this, new UserUnsubscribedEventArgs(userID));
         }
     }
 }

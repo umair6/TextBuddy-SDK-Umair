@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using TextBuddy.core;
+using TextBuddy.Core;
 namespace TextBuddy.Editor
 {
     [InitializeOnLoad]
     public static class TextBuddySetup
     {
-        private const string ConfigFolderPath = "Assets/Resources";
+        private const string ConfigFolderPath = "Assets/TextBuddy/Resources";
         private const string ConfigAssetPath = ConfigFolderPath + "/TextBuddyConfig.asset";
 
         static TextBuddySetup()

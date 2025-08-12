@@ -1,14 +1,14 @@
 // Editor/TextBuddyMenu.cs
 using UnityEditor;
 using UnityEngine;
-using TextBuddy.core;
+using TextBuddy.Core;
 namespace TextBuddy.Editor
 {
     public class TextBuddyMenu : EditorWindow
     {
         private TextBuddyConfig config;
 
-        [MenuItem("TextBuddy/Configure")]
+        [MenuItem("Window/TextBuddy/Configure")]
         public static void ShowWindow()
         {
             var window = GetWindow<TextBuddyMenu>("TextBuddy Setup");
@@ -27,6 +27,7 @@ namespace TextBuddy.Editor
                 EditorGUILayout.HelpBox("Config file not found!", MessageType.Error);
                 return;
             }
+
 
             EditorGUILayout.LabelField("TextBuddy Configuration", EditorStyles.boldLabel);
 

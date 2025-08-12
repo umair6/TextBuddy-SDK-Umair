@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
     /// <summary>
     /// Provides methods to validate deep link query parameters using HMAC-SHA256.

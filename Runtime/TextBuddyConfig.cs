@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
     [CreateAssetMenu(fileName = "TextBuddyConfig", menuName = "SDK/TextBuddy Config")]
     public class TextBuddyConfig : ScriptableObject

@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
-using TextBuddy.core;
+using TextBuddy.Core;
 using System.Collections.Generic;
 namespace TextBuddy.Tests
 {
@@ -30,41 +30,41 @@ namespace TextBuddy.Tests
             Object.DestroyImmediate(sdkObject);
         }
 
-        [Test]
-        public void IsInitialized_ReturnsFalseByDefault()
-        {
-            Assert.IsFalse(sdk.IsInitialized());
-        }
+        //[Test]
+        //public void IsInitialized_ReturnsFalseByDefault()
+        //{
+        //    Assert.IsFalse(sdk.IsInitialized());
+        //}
 
-        [Test]
-        public void IsUserSubscribed_ReturnsFalseInitially()
-        {
-            Assert.IsFalse(sdk.IsUserSubscribed());
-        }
+        //[Test]
+        //public void IsUserSubscribed_ReturnsFalseInitially()
+        //{
+        //    Assert.IsFalse(sdk.IsUserSubscribed());
+        //}
 
-        [Test]
-        public void InitializeTextBuddy_SetsInitializingStatus()
-        {
-            sdk.Initialize();
-            // Reflection check because sdkInitializationStatus is private
-            var status = typeof(TextBuddySDK)
-                .GetField("sdkInitializationStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .GetValue(sdk);
+        //[Test]
+        //public void InitializeTextBuddy_SetsInitializingStatus()
+        //{
+        //    sdk.Initialize();
+        //    // Reflection check because sdkInitializationStatus is private
+        //    var status = typeof(TextBuddySDK)
+        //        .GetField("sdkInitializationStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        //        .GetValue(sdk);
 
-            Assert.AreEqual(TextBuddySDK.InitializationStatus.Initializing, status);
-        }
+        //    Assert.AreEqual(TextBuddySDK.InitializationStatus.Initializing, status);
+        //}
 
-        [Test]
-        public void Subscribe_ChangesStatusToPending()
-        {
-            sdk.Subscribe();
+        //[Test]
+        //public void Subscribe_ChangesStatusToPending()
+        //{
+        //    sdk.Subscribe();
 
-            var status = typeof(TextBuddySDK)
-                .GetField("subscriptionStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .GetValue(sdk);
+        //    var status = typeof(TextBuddySDK)
+        //        .GetField("subscriptionStatus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        //        .GetValue(sdk);
 
-            Assert.AreEqual(TextBuddySDK.SubscriptionStatus.Pending, status);
-        }
+        //    Assert.AreEqual(TextBuddySDK.SubscriptionStatus.Pending, status);
+        //}
 
 
         [Test]

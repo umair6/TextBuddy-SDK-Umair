@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
     /// <summary>
     /// Simple logger for TextBuddy SDK with log level control. Logs only in debug or development builds.

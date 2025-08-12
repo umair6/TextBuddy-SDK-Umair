@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace TextBuddy.core
+namespace TextBuddy.Core
 {
     /// <summary>
     /// Sends SMS using the platform's native messaging app via URL schemes.
