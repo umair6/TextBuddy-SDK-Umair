@@ -127,7 +127,7 @@ public class TBSignupController : MonoBehaviour
         }
         else if (TextBuddySDK.Instance.SubscriptionState == TextBuddySDK.Subscription.Active)
         {
-            subscriptionStatus = "Active";
+            subscriptionStatus = "Subscription: Active";
         }
         _subscriptionStatusText.text = subscriptionStatus;
     }

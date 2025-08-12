@@ -94,24 +94,17 @@ namespace TextBuddy.Core
             {
                 TextBuddyPhoneNumber = result.PhoneNumber;
                 if (!result.IsSubscribed) SetTextBuddyUserID("");
-                FinishInitialization(true, 0, "");
+                FinishInitialization(true, result.Error, "");
             }
             else
             {
-                switch (result.Error)
-                {
-                    case TextBuddy.Core.ConnectError.SignatureValidation:
-                        FinishInitialization(false, 1, result.Message);
-                        break;
-                    default:
-                        FinishInitialization(false, 2, result.Message);
-                        break;
-                }
+
+                FinishInitialization(false, result.Error, result.Message);
             }
 
         }
 
-        private void FinishInitialization(bool success, int errorCode, string errorMessage)
+        private void FinishInitialization(bool success, ConnectError errorCode, string errorMessage)
         {
             if (success)
             {
