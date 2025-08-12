@@ -80,48 +80,34 @@ namespace TextBuddy.Core
 
         private async void SendConnectRequest()
         {
-            string baseUrl = "http://localhost:3000/";
-            string endpoint = "/connect";
 
-            Dictionary<string, string> connectParams = new Dictionary<string, string>();
-            connectParams["gameID"] = config.TextBuddyGameID;
-            connectParams["userID"] = TextBuddyUserID;
-            string payload = JsonConvert.SerializeObject(connectParams);
+            const string baseURL = "http://localhost:3000/";
 
-            TextBuddyWebResponse res = await TextBuddyWebClient.PostAsync(baseUrl, endpoint, null, payload);
-            if (res.Success)
+            var result = await TextBuddy.Core.TextBuddyWebConnect.ConnectAsync(
+                baseUrl: baseURL,
+                gameID: config.TextBuddyGameID,
+                userID: TextBuddyUserID,
+                apiKey: config.TextBuddyAPIKey,
+                timeoutSeconds: 10
+            );
+
+            if (result.Success)
             {
-                bool status = true;
-                int errorCode = -1;
-                string errorMessage = "";
-                Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(res.ResponseText);
-                bool isResponseValidated =  DeepLinkValidator.ValidateQueryParams(dict, config.TextBuddyAPIKey);
-                if (isResponseValidated)
-                {
-
-                    TextBuddyPhoneNumber = dict["phoneNumber"];
-                    string userIDStatus = dict["userIDStatus"];
-                    bool isSubscribed = userIDStatus.Equals("subscribed");
-                    if (!isSubscribed)
-                    {
-                        SetTextBuddyUserID("");
-                    }
-                }
-                else
-                {
-                    status = false;
-                    errorCode = 1;
-                    errorMessage = "Reponse validation failed";
-                }
-                FinishInitialization(status, errorCode, errorMessage);
+                TextBuddyPhoneNumber = result.PhoneNumber;
+                if (!result.IsSubscribed) SetTextBuddyUserID("");
+                FinishInitialization(true, 0, "");
             }
             else
             {
-                TextBuddyLogger.Info(res.ResponseText);
-                bool status = false;
-                int errorCode = 2;
-                string errorMessage = "Connect call failed";
-                FinishInitialization(status, errorCode, errorMessage);
+                switch (result.Error)
+                {
+                    case TextBuddy.Core.ConnectError.SignatureValidation:
+                        FinishInitialization(false, 1, result.Message);
+                        break;
+                    default:
+                        FinishInitialization(false, 2, result.Message);
+                        break;
+                }
             }
 
         }
