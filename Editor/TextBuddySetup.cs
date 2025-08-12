@@ -7,8 +7,9 @@ namespace TextBuddy.Editor
     [InitializeOnLoad]
     public static class TextBuddySetup
     {
-        private const string ConfigFolderPath = "Assets/TextBuddy/Resources";
-        private const string ConfigAssetPath = ConfigFolderPath + "/TextBuddyConfig.asset";
+
+        private static readonly string ConfigFolderPath = Path.Combine("Assets", "TextBuddy", "Resources");
+        private static readonly string ConfigAssetPath = Path.Combine(ConfigFolderPath, "TextBuddyConfig.asset");
 
         static TextBuddySetup()
         {

@@ -70,7 +70,10 @@ namespace TextBuddy.Core
                 www.SetRequestHeader("Content-Type", "application/json");
             }
 
-            www.SetRequestHeader("X-TB-ApiKey", apiKey);
+            if (apiKey != null)
+            {
+                www.SetRequestHeader("X-TB-ApiKey", apiKey);
+            }
 
             await www.SendWebRequest().AsTask();
             return ToResponse(www);

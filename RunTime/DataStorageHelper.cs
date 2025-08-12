@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TextBuddy.Core
 {
-    public static class TBDataStorage
+    public static class DataStorageHelper
     {
 
         public static void SetString(string key, string value)

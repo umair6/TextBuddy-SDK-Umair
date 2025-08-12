@@ -7,11 +7,13 @@ namespace TextBuddy.Core
     public sealed class SDKInitializedEventArgs : EventArgs
     {
         public bool Status { get; }
+        public int ErrorCode { get; }
         public string ErrorMessage { get; }
 
-        public SDKInitializedEventArgs(bool status, string errorMessage)
+        public SDKInitializedEventArgs(bool status, int errorCode, string errorMessage)
         {
             Status = status;
+            ErrorCode = errorCode;
             ErrorMessage = errorMessage;
         }
     }

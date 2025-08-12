@@ -17,12 +17,12 @@ namespace TextBuddy.Core
 
         public static string GetStoredUserID()
         {
-            return TBDataStorage.GetString(UserIDStorageKey, "");
+            return DataStorageHelper.GetString(UserIDStorageKey, "");
         }
 
         public static void StoreTextBuddyUserID(string userID)
         {
-            TBDataStorage.SetString(UserIDStorageKey, userID);
+            DataStorageHelper.SetString(UserIDStorageKey, userID);
         }
 
         public static string GetTextBuddyDeeplinkHostName()

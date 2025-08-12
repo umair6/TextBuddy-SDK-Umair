@@ -82,17 +82,17 @@ namespace TextBuddy.Core
         {
             string baseUrl = "http://localhost:3000/";
             string endpoint = "/connect";
-            string apiKey = config.TextBuddyAPIKey;
 
             Dictionary<string, string> connectParams = new Dictionary<string, string>();
             connectParams["gameID"] = config.TextBuddyGameID;
             connectParams["userID"] = TextBuddyUserID;
             string payload = JsonConvert.SerializeObject(connectParams);
 
-            TBWebResponse res = await TBWebClient.PostAsync(baseUrl, endpoint, apiKey, payload);
+            TBWebResponse res = await TBWebClient.PostAsync(baseUrl, endpoint, null, payload);
             if (res.Success)
             {
                 bool status = true;
+                int errorCode = -1;
                 string errorMessage = "";
                 Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(res.ResponseText);
                 bool isResponseValidated =  TBDeepLinkValidator.ValidateQueryParams(dict, config.TextBuddyAPIKey);
@@ -110,21 +110,23 @@ namespace TextBuddy.Core
                 else
                 {
                     status = false;
+                    errorCode = 1;
                     errorMessage = "Reponse validation failed";
                 }
-                FinishInitialization(status, errorMessage);
+                FinishInitialization(status, errorCode, errorMessage);
             }
             else
             {
                 TBLogger.Info(res.ResponseText);
                 bool status = false;
+                int errorCode = 2;
                 string errorMessage = "Connect call failed";
-                FinishInitialization(status, errorMessage);
+                FinishInitialization(status, errorCode, errorMessage);
             }
 
         }
 
-        private void FinishInitialization(bool success, string errorMessage)
+        private void FinishInitialization(bool success, int errorCode, string errorMessage)
         {
             if (success)
             {
@@ -142,7 +144,7 @@ namespace TextBuddy.Core
                 InitializationState = Initialization.NotStarted;
 
             }
-            OnSDKInitialized?.Invoke(this, new SDKInitializedEventArgs(success, errorMessage));
+            OnSDKInitialized?.Invoke(this, new SDKInitializedEventArgs(success, errorCode, errorMessage));
         }
 
         private void SetupDeeplinkListener()

@@ -23,7 +23,7 @@ namespace TextBuddy.Tests
         [Test]
         public void SetString_ShouldStoreValue()
         {
-            TBDataStorage.SetString(TestKey, TestValue);
+            DataStorageHelper.SetString(TestKey, TestValue);
             Assert.IsTrue(PlayerPrefs.HasKey(TestKey));
         }
 
@@ -31,14 +31,14 @@ namespace TextBuddy.Tests
         public void GetString_ShouldReturnStoredValue()
         {
             PlayerPrefs.SetString(TestKey, TestValue);
-            string result = TBDataStorage.GetString(TestKey, DefaultValue);
+            string result = DataStorageHelper.GetString(TestKey, DefaultValue);
             Assert.AreEqual(TestValue, result);
         }
 
         [Test]
         public void GetString_ShouldReturnDefaultValue_WhenKeyDoesNotExist()
         {
-            string result = TBDataStorage.GetString("NON_EXISTENT_KEY", DefaultValue);
+            string result = DataStorageHelper.GetString("NON_EXISTENT_KEY", DefaultValue);
             Assert.AreEqual(DefaultValue, result);
         }
 
