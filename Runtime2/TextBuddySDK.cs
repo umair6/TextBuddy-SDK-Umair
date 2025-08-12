@@ -13,6 +13,7 @@ namespace TextBuddy.Core
         public enum Initialization { NotStarted, InProgress, Complete }
         public enum Subscription { None, Pending, Active }
 
+        [SerializeField] private string MockServerURL;
         private TextBuddyConfig config;
 
         public static TextBuddySDK Instance { get; private set; }
@@ -80,9 +81,7 @@ namespace TextBuddy.Core
 
         private async void SendConnectRequest()
         {
-
-            const string baseURL = "http://localhost:3000/";
-
+            string baseURL = MockServerURL;
             var result = await TextBuddy.Core.TextBuddyWebConnect.ConnectAsync(
                 baseUrl: baseURL,
                 gameID: config.TextBuddyGameID,
