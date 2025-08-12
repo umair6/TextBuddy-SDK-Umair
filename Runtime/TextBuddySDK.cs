@@ -46,13 +46,13 @@ namespace TextBuddy.Core
             config = TextBuddyRuntimeHelper.LoadConfig();
             if (config == null)
             {
-                TBLogger.Error("TextBuddyConfig Not Found", this);
+                TextBuddyLogger.Error("TextBuddyConfig Not Found", this);
             }
             else
             {
-                TBLogger.EnableInfo = config.EnableDebugLogs;
-                TBLogger.EnableWarning = config.EnableDebugLogs;
-                TBLogger.EnableError = config.EnableDebugLogs;
+                TextBuddyLogger.EnableInfo = config.EnableDebugLogs;
+                TextBuddyLogger.EnableWarning = config.EnableDebugLogs;
+                TextBuddyLogger.EnableError = config.EnableDebugLogs;
             }
         }
 
@@ -73,7 +73,7 @@ namespace TextBuddy.Core
             }
             InitializationState = Initialization.InProgress;
             TextBuddyUserID = TextBuddyRuntimeHelper.GetStoredUserID();
-            TBLogger.Info("Initializing...", this);
+            TextBuddyLogger.Info("Initializing...", this);
             SendConnectRequest();
         }
 
@@ -88,14 +88,14 @@ namespace TextBuddy.Core
             connectParams["userID"] = TextBuddyUserID;
             string payload = JsonConvert.SerializeObject(connectParams);
 
-            TBWebResponse res = await TBWebClient.PostAsync(baseUrl, endpoint, null, payload);
+            TextBuddyWebResponse res = await TextBuddyWebClient.PostAsync(baseUrl, endpoint, null, payload);
             if (res.Success)
             {
                 bool status = true;
                 int errorCode = -1;
                 string errorMessage = "";
                 Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(res.ResponseText);
-                bool isResponseValidated =  TBDeepLinkValidator.ValidateQueryParams(dict, config.TextBuddyAPIKey);
+                bool isResponseValidated =  DeepLinkValidator.ValidateQueryParams(dict, config.TextBuddyAPIKey);
                 if (isResponseValidated)
                 {
 
@@ -117,7 +117,7 @@ namespace TextBuddy.Core
             }
             else
             {
-                TBLogger.Info(res.ResponseText);
+                TextBuddyLogger.Info(res.ResponseText);
                 bool status = false;
                 int errorCode = 2;
                 string errorMessage = "Connect call failed";
@@ -136,7 +136,7 @@ namespace TextBuddy.Core
                 InitializationState = Initialization.Complete;
 
                 SetupDeeplinkListener();
-                TBLogger.Info("Initialized", this);
+                TextBuddyLogger.Info("Initialized", this);
             }
             else
             {
@@ -155,7 +155,7 @@ namespace TextBuddy.Core
 
         private void OnDeepLinkActivated(string url)
         {
-            TBLogger.Info("OnDeepLinkActivated", this);
+            TextBuddyLogger.Info("OnDeepLinkActivated", this);
             if (!string.IsNullOrEmpty(url))
             {
                 HandleDeepLink(url);
@@ -172,12 +172,12 @@ namespace TextBuddy.Core
 
         private void HandleDeepLink(string url)
         {
-            TBLogger.Info("HandleDeepLink: " + url, this);
+            TextBuddyLogger.Info("HandleDeepLink: " + url, this);
 
             if (SubscriptionState != Subscription.Pending)
                 return;
 
-            var parser = new TBDeepLinkParser(url);
+            var parser = new DeepLinkParser(url);
 
             if (!TextBuddyRuntimeHelper.IsTextBuddyHostName(parser.HostName))
                 return;
@@ -233,7 +233,7 @@ namespace TextBuddy.Core
 
         private bool ValidateResponse(Dictionary<string, string> parameters)
         {
-            return TBDeepLinkValidator.ValidateQueryParams(parameters, config.TextBuddyAPIKey, "sig");
+            return DeepLinkValidator.ValidateQueryParams(parameters, config.TextBuddyAPIKey, "sig");
         }
 
         public void Subscribe()
@@ -241,22 +241,22 @@ namespace TextBuddy.Core
             if (SubscriptionState != Subscription.None)
                 return;
 
-            var info = new TBSignUpInfo
+            var info = new SignUpInfo
             {
                 Action = "SUBSCRIBE",
                 GameID = config.TextBuddyGameID
             };
 
-            TBLogger.Info("Subscribe", this);
+            TextBuddyLogger.Info("Subscribe", this);
             SubscribeInternal(info.ToString(), TextBuddyPhoneNumber);
         }
 
         private void SubscribeInternal(string message, string number)
         {
-            TBLogger.Info("SubscribeInternal: " + message, this);
+            TextBuddyLogger.Info("SubscribeInternal: " + message, this);
             SubscriptionState = Subscription.Pending;
 
-            TBSMSSender.SendSms(number, message);
+            SMSSender.SendSms(number, message);
         }
 
         private void Unsubscribe()
@@ -264,21 +264,21 @@ namespace TextBuddy.Core
             if (SubscriptionState != Subscription.Active)
                 return;
 
-            var info = new TBSignUpInfo
+            var info = new SignUpInfo
             {
                 Action = "UNSUBSCRIBE",
                 GameID = config.TextBuddyGameID
             };
 
-            TBLogger.Info("UnSubscribe", this);
+            TextBuddyLogger.Info("UnSubscribe", this);
             UnSubscribeInternal(info.ToString(), TextBuddyPhoneNumber);
         }
 
         private void UnSubscribeInternal(string message, string number)
         {
-            TBLogger.Info("UnSubscribeInternal: " + message, this);
+            TextBuddyLogger.Info("UnSubscribeInternal: " + message, this);
             string userID = TextBuddyUserID;
-            TBSMSSender.SendSms(number, message);
+            SMSSender.SendSms(number, message);
             SubscriptionState = Subscription.None;
             SetTextBuddyUserID("");
             OnUserUnsubscribed?.Invoke(this, new UserUnsubscribedEventArgs(userID));

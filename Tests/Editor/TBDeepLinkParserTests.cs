@@ -7,13 +7,13 @@ using TextBuddy.Core;
 
 namespace TextBuddy.Tests
 {
-    public class TBDeepLinkParserTests
+    public class DeepLinkParserTests
     {
         [Test]
         public void Constructor_ValidUrl_ShouldParseSuccessfully()
         {
             string url = "textbuddy-123://textbuddy/confirm?status=success&id=abc123";
-            var parser = new TBDeepLinkParser(url);
+            var parser = new DeepLinkParser(url);
 
             Assert.AreEqual("textbuddy-123", parser.Scheme);
             Assert.AreEqual("textbuddy", parser.HostName);
@@ -24,7 +24,7 @@ namespace TextBuddy.Tests
         public void Constructor_InvalidUrl_ShouldSetIsParsedFalse()
         {
             string invalidUrl = "this-is-not-a-valid-url";
-            var parser = new TBDeepLinkParser(invalidUrl);
+            var parser = new DeepLinkParser(invalidUrl);
 
             Assert.IsNull(parser.HostName);
             Assert.IsNull(parser.Path);
@@ -35,7 +35,7 @@ namespace TextBuddy.Tests
         public void ParseQuery_ValidQuery_ShouldReturnDictionary()
         {
             string url = "textbuddy://confirm?status=success&id=abc123&name=John%20Doe";
-            var parser = new TBDeepLinkParser(url);
+            var parser = new DeepLinkParser(url);
 
             Dictionary<string, string> queryParams = parser.ParseQuery();
 
@@ -50,7 +50,7 @@ namespace TextBuddy.Tests
         public void ParseQuery_EmptyQuery_ShouldReturnNull()
         {
             string url = "textbuddy://confirm";
-            var parser = new TBDeepLinkParser(url);
+            var parser = new DeepLinkParser(url);
 
             Assert.IsNull(parser.ParseQuery());
         }
@@ -59,7 +59,7 @@ namespace TextBuddy.Tests
         public void ParseQuery_MalformedQuery_ShouldReturnPartialOrNull()
         {
             string url = "textbuddy://confirm?status=success&badparam&x=y";
-            var parser = new TBDeepLinkParser(url);
+            var parser = new DeepLinkParser(url);
 
             Dictionary<string, string> queryParams = parser.ParseQuery();
 

@@ -9,7 +9,7 @@ namespace TextBuddy.Core
 
 
 
-    public class TBWebResponse
+    public class TextBuddyWebResponse
     {
         public bool Success;
         public long StatusCode;
@@ -18,9 +18,9 @@ namespace TextBuddy.Core
     }
 
 
-    public static class TBWebClient
+    public static class TextBuddyWebClient
     {
-        public static Task<TBWebResponse> PostAsync(
+        public static Task<TextBuddyWebResponse> PostAsync(
             string baseUrl,
             string endpoint,
             string apiKey,
@@ -32,7 +32,7 @@ namespace TextBuddy.Core
             return SendAsync(baseUrl, endpoint, apiKey, UnityWebRequest.kHttpVerbPOST, bodyRaw, timeoutSeconds);
         }
 
-        public static Task<TBWebResponse> GetAsync(
+        public static Task<TextBuddyWebResponse> GetAsync(
             string baseUrl,
             string endpoint,
             string apiKey,
@@ -47,7 +47,7 @@ namespace TextBuddy.Core
             return SendAsync(baseUrl, fullEndpoint, apiKey, UnityWebRequest.kHttpVerbGET, null, timeoutSeconds);
         }
 
-        private static async Task<TBWebResponse> SendAsync(
+        private static async Task<TextBuddyWebResponse> SendAsync(
             string baseUrl,
             string endpoint,
             string apiKey,
@@ -57,7 +57,7 @@ namespace TextBuddy.Core
         ) 
         {
             string url = baseUrl.TrimEnd('/') + endpoint;
-            TBLogger.Info("SendAsync::URL::" + url);
+            TextBuddyLogger.Info("SendAsync::URL::" + url);
             using var www = new UnityWebRequest(url, method)
             {
                 downloadHandler = new DownloadHandlerBuffer(),
@@ -79,9 +79,9 @@ namespace TextBuddy.Core
             return ToResponse(www);
         }
 
-        private static TBWebResponse ToResponse(UnityWebRequest req)
+        private static TextBuddyWebResponse ToResponse(UnityWebRequest req)
         {
-            var res = new TBWebResponse
+            var res = new TextBuddyWebResponse
             {
                 StatusCode = req.responseCode,
                 ResponseText = req.downloadHandler?.text

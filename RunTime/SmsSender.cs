@@ -6,7 +6,7 @@ namespace TextBuddy.Core
     /// <summary>
     /// Sends SMS using the platform's native messaging app via URL schemes.
     /// </summary>
-    public static class TBSMSSender
+    public static class SMSSender
     {
         /// <summary>
         /// Opens the native SMS composer with the specified phone number and message.
@@ -17,7 +17,7 @@ namespace TextBuddy.Core
         {
             if (string.IsNullOrWhiteSpace(phoneNumber) || string.IsNullOrWhiteSpace(message))
             {
-                TBLogger.Warning("[BasicSMSSender] Phone number or message is empty.");
+                TextBuddyLogger.Warning("[BasicSMSSender] Phone number or message is empty.");
                 return;
             }
 
@@ -28,11 +28,11 @@ namespace TextBuddy.Core
 #elif UNITY_IOS
             url = $"sms:{phoneNumber}&body={Uri.EscapeDataString(message)}";
 #else
-            TBLogger.Warning("[BasicSMSSender] SMS sending not supported on this platform.");
+            TextBuddyLogger.Warning("[BasicSMSSender] SMS sending not supported on this platform.");
             return;
 #endif
 
-            TBLogger.Info($"[BasicSMSSender] Opening SMS URL: {url}");
+            TextBuddyLogger.Info($"[BasicSMSSender] Opening SMS URL: {url}");
             Application.OpenURL(url);
         }
     }

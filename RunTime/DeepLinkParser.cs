@@ -8,7 +8,7 @@ namespace TextBuddy.Core
     /// <summary>
     /// Parses and provides access to deep link data from a given URL.
     /// </summary>
-    public class TBDeepLinkParser
+    public class DeepLinkParser
     {
         private readonly Uri _uri;
         private readonly bool _isParsed;
@@ -17,7 +17,7 @@ namespace TextBuddy.Core
         /// Initializes the parser with a deep link URL.
         /// </summary>
         /// <param name="url">The deep link URL to parse.</param>
-        public TBDeepLinkParser(string url)
+        public DeepLinkParser(string url)
         {
             if (Uri.TryCreate(url, UriKind.Absolute, out var parsedUri))
             {
@@ -26,7 +26,7 @@ namespace TextBuddy.Core
             }
             else
             {
-                TBLogger.Warning($"[DeepLinkParser] Invalid URL provided: {url}");
+                TextBuddyLogger.Warning($"[DeepLinkParser] Invalid URL provided: {url}");
                 _isParsed = false;
             }
         }
@@ -69,7 +69,7 @@ namespace TextBuddy.Core
             }
             catch (Exception ex)
             {
-                TBLogger.Warning($"[DeepLinkParser] Failed to parse query: {ex.Message}");
+                TextBuddyLogger.Warning($"[DeepLinkParser] Failed to parse query: {ex.Message}");
                 return null;
             }
         }

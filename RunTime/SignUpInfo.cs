@@ -5,7 +5,7 @@ namespace TextBuddy.Core
     /// <summary>
     /// Holds basic sign-up information passed via deep links or user action.
     /// </summary>
-    public struct TBSignUpInfo
+    public struct SignUpInfo
     {
         public string Action;
         public string GameID;

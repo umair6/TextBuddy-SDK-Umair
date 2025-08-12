@@ -43,7 +43,7 @@ namespace TextBuddy.Tests
             string signature = GenerateSignature(parameters, ApiKey);
             parameters["sig"] = signature;
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
             Assert.IsTrue(result);
         }
 
@@ -57,7 +57,7 @@ namespace TextBuddy.Tests
                 { "sig", "invalidsignature" }
             };
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
             Assert.IsFalse(result);
         }
 
@@ -70,14 +70,14 @@ namespace TextBuddy.Tests
                 { "gameID", "abc" }
             };
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
             Assert.IsFalse(result);
         }
 
         [Test]
         public void ValidateQueryParams_NullParameters_ReturnsFalse()
         {
-            bool result = TBDeepLinkValidator.ValidateQueryParams(null, ApiKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(null, ApiKey);
             Assert.IsFalse(result);
         }
 
@@ -91,7 +91,7 @@ namespace TextBuddy.Tests
                 { "sig", "anything" }
             };
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey, "");
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey, "");
             Assert.IsFalse(result);
         }
 
@@ -106,7 +106,7 @@ namespace TextBuddy.Tests
             string customKey = "signature";
             parameters[customKey] = GenerateSignature(parameters, ApiKey, customKey);
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey, customKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey, customKey);
             Assert.IsTrue(result);
         }
 
@@ -120,7 +120,7 @@ namespace TextBuddy.Tests
                 { "sig", null } // will trigger exception in EscapeDataString
             };
 
-            bool result = TBDeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
+            bool result = DeepLinkValidator.ValidateQueryParams(parameters, ApiKey);
             Assert.IsFalse(result);
         }
     }

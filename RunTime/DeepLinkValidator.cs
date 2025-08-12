@@ -9,7 +9,7 @@ namespace TextBuddy.Core
     /// <summary>
     /// Provides methods to validate deep link query parameters using HMAC-SHA256.
     /// </summary>
-    public static class TBDeepLinkValidator
+    public static class DeepLinkValidator
     {
         /// <summary>
         /// Validates that the signature in the query parameters matches the calculated HMAC.
@@ -25,13 +25,13 @@ namespace TextBuddy.Core
         {
             if (string.IsNullOrWhiteSpace(signatureKey))
             {
-                TBLogger.Warning("[DeepLinkValidator] Signature key cannot be null or empty.");
+                TextBuddyLogger.Warning("[DeepLinkValidator] Signature key cannot be null or empty.");
                 return false;
             }
 
             if (parameters == null || !parameters.TryGetValue(signatureKey, out string receivedSignature))
             {
-                TBLogger.Warning($"[DeepLinkValidator] Missing '{signatureKey}' parameter in query.");
+                TextBuddyLogger.Warning($"[DeepLinkValidator] Missing '{signatureKey}' parameter in query.");
                 return false;
             }
 
@@ -67,14 +67,14 @@ namespace TextBuddy.Core
                 // Step 3: Compare signatures
                 bool isValid = string.Equals(receivedSignature, calculatedSignature, StringComparison.OrdinalIgnoreCase);
 
-                TBLogger.Info($"[DeepLinkValidator] {signatureKey} received:   {receivedSignature}");
-                TBLogger.Info($"[DeepLinkValidator] {signatureKey} calculated: {calculatedSignature}");
+                TextBuddyLogger.Info($"[DeepLinkValidator] {signatureKey} received:   {receivedSignature}");
+                TextBuddyLogger.Info($"[DeepLinkValidator] {signatureKey} calculated: {calculatedSignature}");
 
                 return isValid;
             }
             catch (Exception ex)
             {
-                TBLogger.Error($"[DeepLinkValidator] Exception during validation: {ex.Message}");
+                TextBuddyLogger.Error($"[DeepLinkValidator] Exception during validation: {ex.Message}");
                 return false;
             }
         }
