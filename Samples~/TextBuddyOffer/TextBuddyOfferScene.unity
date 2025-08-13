@@ -1755,7 +1755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea0454316b21f480d9e3bdcff859895e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MockServerURL: http://192.168.18.15:3000/
+  mockServerURL: http://192.168.18.15:3000/
 --- !u!4 &1154021923
 Transform:
   m_ObjectHideFlags: 0

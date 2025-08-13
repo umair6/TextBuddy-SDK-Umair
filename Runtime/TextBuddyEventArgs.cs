@@ -34,10 +34,4 @@ namespace TextBuddy.Core
             ErrorMessage = errorMessage;
         }
     }
-
-    public sealed class UserUnsubscribedEventArgs : EventArgs
-    {
-        public string UserID { get; }
-        public UserUnsubscribedEventArgs(string userID) { UserID = userID; }
-    }
 }

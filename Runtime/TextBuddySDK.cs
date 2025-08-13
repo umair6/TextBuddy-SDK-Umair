@@ -13,8 +13,9 @@ namespace TextBuddy.Core
         public enum Initialization { NotStarted, InProgress, Complete }
         public enum Subscription { None, Pending, Active }
 
-        [SerializeField] private string MockServerURL;
-        private TextBuddyConfig config;
+
+        [SerializeField] private string mockServerURL;
+        private TextBuddyConfig textBuddyConfig;
 
         public static TextBuddySDK Instance { get; private set; }
         public string TextBuddyPhoneNumber { get; private set; }
@@ -25,8 +26,8 @@ namespace TextBuddy.Core
         public static event EventHandler<SDKInitializedEventArgs> OnSDKInitialized;
         public static event EventHandler<UserSubscribedEventArgs> OnUserSubscribed;
         public static event EventHandler<UserSubscribeFailedEventArgs> OnUserSubscribeFail;
-        private static event EventHandler<UserUnsubscribedEventArgs> OnUserUnsubscribed;
 
+        
 
         private void Awake()
         {
@@ -44,16 +45,16 @@ namespace TextBuddy.Core
         {
             InitializationState = Initialization.NotStarted;
             SubscriptionState = Subscription.None;
-            config = TextBuddyRuntimeHelper.LoadConfig();
-            if (config == null)
+            textBuddyConfig = TextBuddyRuntimeHelper.LoadConfig();
+            if (textBuddyConfig == null)
             {
                 TextBuddyLogger.Error("TextBuddyConfig Not Found", this);
             }
             else
             {
-                TextBuddyLogger.EnableInfo = config.EnableDebugLogs;
-                TextBuddyLogger.EnableWarning = config.EnableDebugLogs;
-                TextBuddyLogger.EnableError = config.EnableDebugLogs;
+                TextBuddyLogger.EnableInfo = textBuddyConfig.EnableDebugLogs;
+                TextBuddyLogger.EnableWarning = textBuddyConfig.EnableDebugLogs;
+                TextBuddyLogger.EnableError = textBuddyConfig.EnableDebugLogs;
             }
         }
 
@@ -61,7 +62,6 @@ namespace TextBuddy.Core
         {
             if (Instance == this)
             {
-                Application.deepLinkActivated -= OnDeepLinkActivated;
                 Instance = null;
             }
         }
@@ -81,12 +81,12 @@ namespace TextBuddy.Core
 
         private async void SendConnectRequest()
         {
-            string baseURL = MockServerURL;
+            string baseURL = mockServerURL;
             var result = await TextBuddy.Core.TextBuddyWebConnect.ConnectAsync(
                 baseUrl: baseURL,
-                gameID: config.TextBuddyGameID,
+                gameID: textBuddyConfig.TextBuddyGameID,
                 userID: TextBuddyUserID,
-                apiKey: config.TextBuddyAPIKey,
+                apiKey: textBuddyConfig.TextBuddyAPIKey,
                 timeoutSeconds: 10
             );
 
@@ -112,8 +112,6 @@ namespace TextBuddy.Core
                     SubscriptionState = Subscription.Active;
 
                 InitializationState = Initialization.Complete;
-
-                SetupDeeplinkListener();
                 TextBuddyLogger.Info("Initialized", this);
             }
             else
@@ -125,44 +123,41 @@ namespace TextBuddy.Core
             OnSDKInitialized?.Invoke(this, new SDKInitializedEventArgs(success, errorCode, errorMessage));
         }
 
-        private void SetupDeeplinkListener()
+        public void ProcessDeepLink(string url)
         {
-            Application.deepLinkActivated -= OnDeepLinkActivated;
-            Application.deepLinkActivated += OnDeepLinkActivated;
-        }
+            TextBuddyLogger.Info("ProcessDeepLink: " + url, this);
 
-        private void OnDeepLinkActivated(string url)
-        {
-            TextBuddyLogger.Info("OnDeepLinkActivated", this);
-            if (!string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(url))
             {
-                HandleDeepLink(url);
+                TextBuddyLogger.Info("ProcessDeepLink: Empty URL.", this);
+                return;
             }
-        }
 
-        public void CheckPendingDeepLink()
-        {
-            if (!string.IsNullOrEmpty(Application.absoluteURL))
+            if (InitializationState != Initialization.Complete)
             {
-                HandleDeepLink(Application.absoluteURL);
+                TextBuddyLogger.Info("ProcessDeepLink: SDK not initialized.", this);
+                return;
             }
-        }
-
-        private void HandleDeepLink(string url)
-        {
-            TextBuddyLogger.Info("HandleDeepLink: " + url, this);
 
             if (SubscriptionState != Subscription.Pending)
+            {
+                TextBuddyLogger.Info("ProcessDeepLink: No pending subscription request.", this);
                 return;
+            }
 
             var parser = new DeepLinkParser(url);
-
             if (!TextBuddyRuntimeHelper.IsTextBuddyHostName(parser.HostName))
+            {
+                TextBuddyLogger.Info("ProcessDeepLink: Not a TextBuddy URL.", this);
                 return;
+            }
 
             Dictionary<string, string> queryParams = parser.ParseQuery();
             if (queryParams == null)
+            {
+                TextBuddyLogger.Info("ProcessDeepLink: No query params.", this);
                 return;
+            }
 
             if (!queryParams.TryGetValue("status", out string status) || string.IsNullOrWhiteSpace(status))
             {
@@ -177,7 +172,6 @@ namespace TextBuddy.Core
                 SubscriptionState = Subscription.None;
                 int errorCode = 2;
                 OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Signup failed"));
-
                 return;
             }
 
@@ -186,7 +180,6 @@ namespace TextBuddy.Core
                 SubscriptionState = Subscription.None;
                 int errorCode = 3;
                 OnUserSubscribeFail?.Invoke(this, new UserSubscribeFailedEventArgs(errorCode, "Signature validation failed"));
-
                 return;
             }
 
@@ -211,7 +204,7 @@ namespace TextBuddy.Core
 
         private bool ValidateResponse(Dictionary<string, string> parameters)
         {
-            return DeepLinkValidator.ValidateQueryParams(parameters, config.TextBuddyAPIKey, "sig");
+            return DeepLinkValidator.ValidateQueryParams(parameters, textBuddyConfig.TextBuddyAPIKey, "sig");
         }
 
         public void Subscribe()
@@ -222,7 +215,7 @@ namespace TextBuddy.Core
             var info = new SignUpInfo
             {
                 Action = "SUBSCRIBE",
-                GameID = config.TextBuddyGameID
+                GameID = textBuddyConfig.TextBuddyGameID
             };
 
             TextBuddyLogger.Info("Subscribe", this);
@@ -235,31 +228,6 @@ namespace TextBuddy.Core
             SubscriptionState = Subscription.Pending;
 
             SMSSender.SendSms(number, message);
-        }
-
-        private void Unsubscribe()
-        {
-            if (SubscriptionState != Subscription.Active)
-                return;
-
-            var info = new SignUpInfo
-            {
-                Action = "UNSUBSCRIBE",
-                GameID = config.TextBuddyGameID
-            };
-
-            TextBuddyLogger.Info("UnSubscribe", this);
-            UnSubscribeInternal(info.ToString(), TextBuddyPhoneNumber);
-        }
-
-        private void UnSubscribeInternal(string message, string number)
-        {
-            TextBuddyLogger.Info("UnSubscribeInternal: " + message, this);
-            string userID = TextBuddyUserID;
-            SMSSender.SendSms(number, message);
-            SubscriptionState = Subscription.None;
-            SetTextBuddyUserID("");
-            OnUserUnsubscribed?.Invoke(this, new UserUnsubscribedEventArgs(userID));
         }
     }
 }

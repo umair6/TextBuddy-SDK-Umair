@@ -12,6 +12,7 @@ public class TBSignupController : MonoBehaviour
 
     private void OnDestroy()
     {
+        Application.deepLinkActivated -= OnDeepLinkActivated;
         TextBuddySDK.OnSDKInitialized -= TextBuddySDK_OnSDKInitialized;
         UnregisterSubscriptionCalls();
     }
@@ -28,6 +29,7 @@ public class TBSignupController : MonoBehaviour
         _offerButton.gameObject.SetActive(false);
         UpdateSDKStatus();
         UpdateSubscriptionStatus();
+        SetupDeeplinkListener();
     }
 
     public void InitializeTextBuddySDK()
@@ -35,6 +37,22 @@ public class TBSignupController : MonoBehaviour
         _initButton.interactable = false;
         TextBuddySDK.OnSDKInitialized += TextBuddySDK_OnSDKInitialized;
         TextBuddySDK.Instance.Initialize();
+    }
+
+
+
+    private void SetupDeeplinkListener()
+    {
+        Application.deepLinkActivated += OnDeepLinkActivated;
+    }
+
+    private void OnDeepLinkActivated(string url)
+    {
+        Debug.Log("OnDeepLinkActivated", this);
+        if (!string.IsNullOrEmpty(url))
+        {
+            TextBuddySDK.Instance.ProcessDeepLink(url);
+        }
     }
 
     private void TextBuddySDK_OnSDKInitialized(object sender, SDKInitializedEventArgs e)
