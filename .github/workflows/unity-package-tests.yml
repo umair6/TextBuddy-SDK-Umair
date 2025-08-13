@@ -13,7 +13,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    environment:
+      name: TextBuddy
     steps:
       # Checkout into a subfolder so the package isn't at repo root (avoids a known hang)
       - name: Checkout
