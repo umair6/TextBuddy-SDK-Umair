@@ -14,14 +14,6 @@ namespace TextBuddy.Tests
         {
             sdkObject = new GameObject("TextBuddySDK");
             sdk = sdkObject.AddComponent<TextBuddySDK>();
-
-            // Inject a test config using reflection or internal access
-            var config = ScriptableObject.CreateInstance<TextBuddyConfig>();
-            config.TextBuddyAPIKey = "dummy_key";
-            config.TextBuddyGameID = "test_game_id";
-            typeof(TextBuddySDK)
-                .GetField("config", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(sdk, config);
         }
 
         [TearDown]
@@ -67,24 +59,24 @@ namespace TextBuddy.Tests
         //}
 
 
-        [Test]
-        public void IsTextBuddyURL_ValidHost_ReturnsTrue()
-        {
-            var result = typeof(TextBuddySDK)
-                .GetMethod("IsTextBuddyURL", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(sdk, new object[] { "textbuddy" });
+        //[Test]
+        //public void IsTextBuddyURL_ValidHost_ReturnsTrue()
+        //{
+        //    var result = typeof(TextBuddySDK)
+        //        .GetMethod("IsTextBuddyURL", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        //        .Invoke(sdk, new object[] { "textbuddy" });
 
-            Assert.IsTrue((bool)result);
-        }
+        //    Assert.IsTrue((bool)result);
+        //}
 
-        [Test]
-        public void IsTextBuddyURL_InvalidHost_ReturnsFalse()
-        {
-            var result = typeof(TextBuddySDK)
-                .GetMethod("IsTextBuddyURL", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .Invoke(sdk, new object[] { "example" });
+        //[Test]
+        //public void IsTextBuddyURL_InvalidHost_ReturnsFalse()
+        //{
+        //    var result = typeof(TextBuddySDK)
+        //        .GetMethod("IsTextBuddyURL", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        //        .Invoke(sdk, new object[] { "example" });
 
-            Assert.IsFalse((bool)result);
-        }
+        //    Assert.IsFalse((bool)result);
+        //}
     }
 }

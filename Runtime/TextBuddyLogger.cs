@@ -15,26 +15,20 @@ namespace TextBuddy.Core
 
         public static void Info(string message, Object context = null)
         {
-//#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (EnableInfo)
                 LogInternal(LogType.Log, message, context);
-//#endif
         }
 
         public static void Warning(string message, Object context = null)
         {
-//#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (EnableWarning)
                 LogInternal(LogType.Warning, message, context);
-//#endif
         }
 
         public static void Error(string message, Object context = null)
         {
-//#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (EnableError)
                 LogInternal(LogType.Error, message, context);
-//#endif
         }
 
         private static void LogInternal(LogType type, string message, Object context)
