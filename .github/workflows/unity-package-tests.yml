@@ -1,0 +1,45 @@
+# .github/workflows/unity-package-tests.yml
+name: Unity Package Tests
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout into a subfolder so the package isn't at repo root (avoids a known hang)
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          path: package
+
+      - name: Run Unity tests (package mode)
+        uses: game-ci/unity-test-runner@v4
+        id: tests
+        env:
+            # One of the following license methods is required:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL:   ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          packageMode: true
+          projectPath: package            # your package dir
+          unityVersion: 6000.0.46f1       # pick your target Unity version
+          testMode: All                   # EditMode + PlayMode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-test-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
